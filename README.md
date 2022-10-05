@@ -41,4 +41,4 @@ python evaluate_on_mod.py -e 100
 ```
 
 Tips:
-We run on the Tesla A100, which contains 40g of video memory, so we can set the maximum batch size to 256. If there is no such large resource, you need to set a smaller batch size in *main.py*. We also upload the pretrained models to *./checkpoint/*.
+We run on the Tesla A100, which contains 40g of video memory, so we can set the maximum batch size to 256. If there is no such large resource, you need to set a smaller batch size in *main.py*. We also upload the trained models to *./checkpoint/*.
