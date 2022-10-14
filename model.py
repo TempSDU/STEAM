@@ -349,3 +349,74 @@ class model(torch.nn.Module):
             modified_seqs[i] = list(filter(lambda x: (x != 0 and x != self.item_num - 2 and x != self.item_num - 1), modified_seqs[i]))   # filter padding, EOS, mask token
 
         return modified_seqs
+
+    def seq_correction_only_delete(self, decisions, insert_seqs, input_seqs):
+        # Apply the delete operation to the sequence only
+
+        modified_seqs = input_seqs.clone()
+
+        decisions[modified_seqs == 0] = 0
+
+        # For the time step of prediction deletion, this position is converted to padding
+        # If deleted directly, the relative position of the sequence will be affected
+
+        modified_seqs[decisions == 1] = 0
+
+        modified_seqs = modified_seqs.tolist()
+
+        batch_size = len(modified_seqs)
+
+        for i in range(batch_size):
+            modified_seqs[i] = list(filter(lambda x: (x != 0 and x != self.item_num - 2 and x != self.item_num - 1),
+                                           modified_seqs[i]))  # filter padding, EOS, mask token
+
+        return modified_seqs
+
+    def seq_correction_only_insert(self, decisions, insert_seqs, input_seqs):
+        # Apply the insert operation to the sequence only
+
+        modified_seqs = input_seqs.clone()
+
+        decisions[modified_seqs == 0] = 0
+
+        modified_seqs = modified_seqs.tolist()
+
+        dim_0_index_insert, dim_1_index_insert = torch.where(decisions == 2)
+
+        insert_seqs_corrector = insert_seqs[dim_0_index_insert, dim_1_index_insert].tolist()
+
+        i = 0
+
+        pre_dim_0 = 0
+
+        k = 0
+
+        while i < len(insert_seqs_corrector):
+
+            j = 0
+
+            if pre_dim_0 != dim_0_index_insert[i]:
+                k = 0
+
+                pre_dim_0 = dim_0_index_insert[i]
+
+            while j < len(insert_seqs_corrector[i]):
+
+                if insert_seqs_corrector[i][j] == self.item_num - 2:
+                    break
+
+                modified_seqs[dim_0_index_insert[i]].insert((dim_1_index_insert[i] + k), insert_seqs_corrector[i][j])
+
+                j += 1
+
+            k += j
+
+            i += 1
+
+        batch_size = len(modified_seqs)
+
+        for i in range(batch_size):
+            modified_seqs[i] = list(filter(lambda x: (x != 0 and x != self.item_num - 2 and x != self.item_num - 1),
+                                           modified_seqs[i]))  # filter padding, EOS, mask token
+
+        return modified_seqs
