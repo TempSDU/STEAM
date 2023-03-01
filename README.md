@@ -1,6 +1,6 @@
 # A Self-Correcting Sequential Recommender
 
-> Codes for the submission: A Self-Correcting Sequential Recommender
+> Codes for WWW'23: A Self-Correcting Sequential Recommender
 
 ## Introduction
 
